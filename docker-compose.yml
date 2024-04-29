@@ -1,0 +1,56 @@
+version: '3.3'
+
+networks:
+  replicated-network:
+    external: false
+
+services:
+
+  #service definition of spring-boot app
+  master-server:
+    hostname: master-server
+    image: replicated-log-master:2.1
+    networks:
+      - replicated-network
+    container_name: replicated-log-master-container
+    build:
+      context: replicated-log-master
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    restart: always
+
+
+
+  secondary-server-1:
+    image: replicated-log-secondary-1:2.2
+    networks:
+      - replicated-network
+    container_name: replicated-log-secondary-1-container
+    build:
+      context: replicated-log-secondary
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8081"
+    restart: always
+    depends_on:
+      - master-server
+    command: sh -c './wait-for master-server:8080 -- ./java -jar /app/app.jar'
+
+
+
+  secondary-server-2:
+    image: replicated-log-secondary-2:2.3
+    networks:
+      - replicated-network
+    container_name: replicated-log-secondary-2-container
+    build:
+      context: replicated-log-secondary
+      dockerfile: Dockerfile
+    ports:
+      - "8082:8082"
+    restart: always
+    depends_on:
+      - master-server
+    command: sh -c './wait-for master-server:8080 -- ./java -jar /app/app.jar'
+
