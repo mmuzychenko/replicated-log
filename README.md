@@ -22,10 +22,4 @@ Available endpoints:
 - GET: master/messages<br />
 (returns all replicated messages from the in-memory list)<br />
   <br />
-- GET: master/health<br />
-  (check secondaries’ health (status):
-  Healthy -> Suspected -> Unhealthy.)<br />
-<br />
-- POST: master/acknowledges<br />
-(for communication between client and servers)
 

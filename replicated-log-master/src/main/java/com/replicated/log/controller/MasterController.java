@@ -81,10 +81,4 @@ public class MasterController {
         return ResponseEntity.ok(acknowledge);
     }
 
-    @GetMapping("/health")
-    public ResponseEntity<List<HealthStatus>> checkHealth() {
-        List<HealthStatus> healthStatus = replicatedUtilsService.getAllSecondaryHealthStatus();
-        return ResponseEntity.ok(healthStatus);
-    }
-
 }
