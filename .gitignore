@@ -22,3 +22,10 @@
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 replay_pid*
+
+## target folder at the top level of the project structue and paths and contents underneath it
+target/
+target/*
+
+#IDE metadata
+**.idea/**
