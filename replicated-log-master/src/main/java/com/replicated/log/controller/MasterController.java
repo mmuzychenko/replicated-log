@@ -2,20 +2,18 @@ package com.replicated.log.controller;
 
 import com.replicated.log.dto.*;
 import com.replicated.log.service.AcknowledgeService;
-import com.replicated.log.service.HealthCheckUpService;
+import com.replicated.log.service.ReplicatedUtilsService;
 import com.replicated.log.service.MessageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.MessageFormat;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/master")
@@ -24,7 +22,6 @@ public class MasterController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MasterController.class);
 
-
     @Autowired
     private MessageService messageService;
 
@@ -32,26 +29,24 @@ public class MasterController {
     private AcknowledgeService acknowledgeService;
 
     @Autowired
-    private HealthCheckUpService healthCheckUpService;
-
-    @Value("${server.quorum}")
-    private int quourum;
+    private ReplicatedUtilsService replicatedUtilsService;
 
     private int messageCounter;
 
 
     @GetMapping("/messages")
-    public ResponseEntity<Set<String>> getMessages() {
+    public ResponseEntity<List<String>> getMessages() {
         LOGGER.info("Master: Start get all messages.");
-        Set<String> items = new HashSet<>(messageService.getAllMessages());
+        List<String> messages = messageService.getAllMessages().stream().sorted().map(Message::getText).collect(Collectors.toList());
         LOGGER.info("Master: Finish get all messages.");
-        return ResponseEntity.ok(items);
+        return ResponseEntity.ok(messages);
     }
 
     @PostMapping("/messages/{writeConcern}")
     public ResponseEntity<String> appendMessage(@RequestBody String text, @PathVariable int writeConcern) {
 
-        if (quourum == 0) {
+        // Count the number of healthy secondaries
+        if (!replicatedUtilsService.isQuorumEnough()) {
             return ResponseEntity.ok("Sorry, appending new messages temporary unavailable.");
         }
 
@@ -63,10 +58,8 @@ public class MasterController {
 
         messageService.appendMessage(message);
 
-        while (acknowledgeService.getAknowledges(message.getId()) != null ||
-                acknowledgeService.getAknowledges(message.getId()).size() < writeConcern) {
-            int missedAcknowledgesCount = writeConcern - acknowledgeService.getAknowledges(message.getId()).size();
-            LOGGER.info("Master: Waiting {} acknowledges ", missedAcknowledgesCount);
+        while (acknowledgeService.getAknowledges(message.getId()).size() < writeConcern) {
+            LOGGER.info("Master: Waiting {} acknowledges.", writeConcern - acknowledgeService.getAknowledges(message.getId()).size());
             try {
                 Thread.sleep(5000);
             } catch (InterruptedException e) {
@@ -88,8 +81,8 @@ public class MasterController {
     }
 
     @GetMapping("/health")
-    public ResponseEntity<List<SecondaryServiceCheck>> checkHealth() {
-        List<SecondaryServiceCheck> healthStatus = healthCheckUpService.getAllSecondaryHealthStatus();
+    public ResponseEntity<List<HealthStatus>> checkHealth() {
+        List<HealthStatus> healthStatus = replicatedUtilsService.getAllSecondaryHealthStatus();
         return ResponseEntity.ok(healthStatus);
     }
 

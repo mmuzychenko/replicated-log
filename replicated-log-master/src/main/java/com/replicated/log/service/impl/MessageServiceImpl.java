@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class MessageServiceImpl implements MessageService {
@@ -34,11 +33,11 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public Set<String> getAllMessages() {
+    public Set<Message> getAllMessages() {
         LOGGER.info("Message service: Get all messages.");
-        Set<String> result = new HashSet<>();
+        Set<Message> result = new HashSet<>();
         allSecondaries.forEach(baseUrl ->
-                result.addAll(secondaryServiceClient.getAllMessageAsync(baseUrl).stream().map(Message::getText).collect(Collectors.toSet())));
+                result.addAll(new HashSet<>(secondaryServiceClient.getAllMessages(baseUrl))));
         return new HashSet<>(result);
     }
 

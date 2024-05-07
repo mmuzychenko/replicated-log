@@ -6,7 +6,7 @@ import java.util.Set;
 
 public interface MessageService {
 
-    Set<String> getAllMessages();
+    Set<Message> getAllMessages();
 
     void appendMessage(Message message);
 }

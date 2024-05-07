@@ -2,7 +2,7 @@ package com.replicated.log.dto;
 
 import java.util.Objects;
 
-public class Message {
+public class Message implements Comparable<Message>{
 
     private Integer id;
     private String text;
@@ -41,6 +41,11 @@ public class Message {
     @Override
     public int hashCode() {
         return Objects.hash(id, text);
+    }
+
+    @Override
+    public int compareTo(Message o) {
+        return this.getId() - o.getId();
     }
 
 }

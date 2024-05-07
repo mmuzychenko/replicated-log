@@ -7,6 +7,8 @@ import com.replicated.log.utils.ReplicatedLogUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +22,12 @@ public class SecondaryController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SecondaryController.class);
 
+    @Value("${secondary.baseurl}")
+    private String baseUrl;
+
+    @Value("${service.name}")
+    private String name;
+
     @Autowired
     private MessageService messageService;
 
@@ -28,31 +36,29 @@ public class SecondaryController {
 
 
     @GetMapping("/messages")
-    public ResponseEntity<Set<Message>> findAllItems() {
-        LOGGER.info("Secondary controller: Get all messages.");
+    public ResponseEntity<Set<Message>> findAllMessages() {
+        LOGGER.info("{}: Get all messages call.", name);
         return ResponseEntity.ok(messageService.getAllMessages());
     }
 
     @PostMapping( "/messages")
-    public ResponseEntity<Message> addItem(@RequestBody Message message) {
-        LOGGER.info("Secondary controller: Received message: {}", message.getText());
+    public ResponseEntity<Message> addMessage(@RequestBody Message message) {
+        LOGGER.info("{}: Received message: {}", name, message.getText());
 
-        LOGGER.info("Secondary controller: Send acknowledge to master.");
-        masterServiceClient.sendAcknowledgeAsync(new Acknowledge(message.getId(), AcknowledgeStatus.SUCCESS));
+        LOGGER.info("{}: Send acknowledge to master.", name);
+        masterServiceClient.sendAcknowledge(new Acknowledge(message.getId(), AcknowledgeStatus.SUCCESS));
 
         ReplicatedLogUtils.pauseSecondaryServer(10);
 
         messageService.appendMessage(message);
-        LOGGER.info("Secondary controller: Added message: {} ", message);
+        LOGGER.info("{}: Added message: {} ", name, message);
 
         return ResponseEntity.ok(message);
     }
 
     @GetMapping("/health")
-    public ResponseEntity<SecondaryServiceCheck> healthCheck() {
-        LOGGER.info("Secondary controller: Check health");
-        SecondaryServiceCheck check = new SecondaryServiceCheck();
-        check.setHealthStatus(HealthStatus.HEALTHY);
-        return ResponseEntity.ok(check);
+    public ResponseEntity<HttpStatus> healthCheck() {
+        LOGGER.info("{}: health check url", name);
+        return ResponseEntity.ok(HttpStatus.OK);
     }
 }

@@ -11,7 +11,7 @@ public class ReplicatedLogUtils {
         LOGGER.info("Pause secondary server.");
         try {
             for (int i = 1; i <= seconds; i++) {
-                LOGGER.info("{}...", i);
+                LOGGER.info("wait {}s...", i);
                 Thread.sleep(1000);
             }
         } catch (InterruptedException e) {
