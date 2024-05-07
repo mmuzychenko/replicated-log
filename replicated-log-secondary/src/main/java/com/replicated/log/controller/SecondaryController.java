@@ -46,7 +46,7 @@ public class SecondaryController {
         LOGGER.info("{}: Received message: {}", name, message.getText());
 
         LOGGER.info("{}: Send acknowledge to master.", name);
-        masterServiceClient.sendAcknowledge(new Acknowledge(message.getId(), AcknowledgeStatus.SUCCESS));
+        masterServiceClient.sendAcknowledge(new Acknowledge(message.getId(), AcknowledgeStatus.SUCCESS, baseUrl));
 
         ReplicatedLogUtils.pauseSecondaryServer(10);
 

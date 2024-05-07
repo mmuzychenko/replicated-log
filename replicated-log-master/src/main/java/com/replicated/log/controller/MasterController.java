@@ -60,6 +60,7 @@ public class MasterController {
 
         while (acknowledgeService.getAknowledges(message.getId()).size() < writeConcern) {
             LOGGER.info("Master: Waiting {} acknowledges.", writeConcern - acknowledgeService.getAknowledges(message.getId()).size());
+            messageService.retryIfPosibleAppendMessage(message, acknowledgeService.getAknowledges(message.getId()));
             try {
                 Thread.sleep(5000);
             } catch (InterruptedException e) {

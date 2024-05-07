@@ -49,6 +49,12 @@ public class ReplicatedUtilsServiceImpl implements ReplicatedUtilsService {
     }
 
     @Override
+    public HealthCondition getSecondaryHealthCondition(String url) {
+        LOGGER.info("Message service: Get secondary health.");
+        return secondaryServiceClient.healthCheck(url);
+    }
+
+    @Override
     public boolean isQuorumEnough() {
         if (allSecondaries.size() < quorum) {
             return false;

@@ -6,10 +6,13 @@ public class Acknowledge {
 
     private Integer messageId;
     private AcknowledgeStatus status;
+    private String serviceUrl;
 
-    public Acknowledge(Integer messageId, AcknowledgeStatus status) {
+
+    public Acknowledge(Integer messageId, AcknowledgeStatus status, String serviceUrl) {
         this.messageId = messageId;
         this.status = status;
+        this.serviceUrl = serviceUrl;
     }
 
     public Integer getMessageId() {
@@ -26,6 +29,14 @@ public class Acknowledge {
 
     public void setStatus(AcknowledgeStatus status) {
         this.status = status;
+    }
+
+    public String getServiceUrl() {
+        return serviceUrl;
+    }
+
+    public void setServiceUrl(String serviceUrl) {
+        this.serviceUrl = serviceUrl;
     }
 
     @Override
