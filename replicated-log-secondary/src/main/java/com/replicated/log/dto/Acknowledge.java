@@ -1,7 +1,5 @@
 package com.replicated.log.dto;
 
-import java.util.Objects;
-
 public class Acknowledge {
 
     private Integer messageId;
@@ -37,18 +35,6 @@ public class Acknowledge {
 
     public void setServiceUrl(String serviceUrl) {
         this.serviceUrl = serviceUrl;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Acknowledge that)) return false;
-        return Objects.equals(messageId, that.messageId) && status == that.status;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(messageId, status);
     }
 
 }

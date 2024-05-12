@@ -39,12 +39,11 @@ public class Acknowledge {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Acknowledge that)) return false;
-        return Objects.equals(messageId, that.messageId) && status == that.status;
+        return Objects.equals(messageId, that.messageId) && status == that.status && Objects.equals(serviceUrl, that.serviceUrl);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(messageId, status);
+        return Objects.hash(messageId, status, serviceUrl);
     }
-
 }

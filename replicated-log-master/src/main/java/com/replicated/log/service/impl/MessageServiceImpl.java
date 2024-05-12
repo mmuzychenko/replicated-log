@@ -54,7 +54,7 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public void retryAppendMessageIfPossible(Message message, List<Acknowledge> acknowledges) {
+    public void retryAppendMessageIfPossible(Message message, Set<Acknowledge> acknowledges) {
         LOGGER.info("Message service: Retry add message.");
         List<String> ackUrls = acknowledges.stream().map(Acknowledge::getServiceUrl).toList();
         List<String> receivedAckSecondariesUrl = new ArrayList<>(allSecondaries);
