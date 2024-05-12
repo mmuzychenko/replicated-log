@@ -12,5 +12,5 @@ public interface MessageService {
 
     void appendMessage(Message message);
 
-    void retryIfPosibleAppendMessage(Message message, List<Acknowledge> acknowladges);
+    void retryAppendMessageIfPossible(Message message, List<Acknowledge> acknowledges);
 }

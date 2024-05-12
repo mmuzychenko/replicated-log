@@ -15,7 +15,7 @@ public class AcknowledgeServiceImpl implements AcknowledgeService {
     private Map<Integer, List<Acknowledge>> acknowledgeRepository = new HashMap<>();
 
     @Override
-    public List<Acknowledge> getAknowledges(Integer messageId) {
+    public List<Acknowledge> getAcknowledges(Integer messageId) {
         return acknowledgeRepository.containsKey(messageId) ? acknowledgeRepository.get(messageId) : new ArrayList<>();
     }
 

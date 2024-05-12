@@ -22,8 +22,8 @@ public class ReplicatedUtilsServiceImpl implements ReplicatedUtilsService {
     private int quorum;
 
 
-    @Value("${all.secondary.baseurl}")
-    private String allSecondaryBaseUrl;
+    @Value("${all.secondary.url}")
+    private String allSecondaryBaseUrl = System.getenv("ALL_SECONDARY_URL");;
 
     @Autowired
     private SecondaryServiceClient secondaryServiceClient;

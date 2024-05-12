@@ -20,9 +20,8 @@
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
-<!--        <maven.compiler.source>17</maven.compiler.source>-->
-<!--        <maven.compiler.target>17</maven.compiler.target>-->
         <spring.boot.version>3.2.5</spring.boot.version>
+        <slf4j-api.version>2.0.13</slf4j-api.version>
     </properties>
 
     <dependencies>
@@ -42,61 +41,8 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>2.0.13</version>
+            <version>${slf4j-api.version}</version>
         </dependency>
-
-
-        <!--        <dependency>-->
-<!--            <groupId>org.springframework.boot</groupId>-->
-<!--            <artifactId>spring-boot-starter-test</artifactId>-->
-<!--            <scope>test</scope>-->
-<!--        </dependency>-->
     </dependencies>
-
-
-<!--    <parent>-->
-<!--        <groupId>org.springframework.boot</groupId>-->
-<!--        <artifactId>spring-boot-starter-parent</artifactId>-->
-<!--        <version>3.2.5</version>-->
-<!--&lt;!&ndash;        <type>pom</type>&ndash;&gt;-->
-<!--    </parent>-->
-
-
-<!--    <parent>-->
-<!--        <groupId>org.springframework.boot</groupId>-->
-<!--        <artifactId>spring-boot-starter-parent</artifactId>-->
-<!--        <version>2.7.0</version>-->
-<!--        <relativePath/> &lt;!&ndash; lookup parent from repository &ndash;&gt;-->
-<!--    </parent>-->
-
-
-
-<!--    <build>-->
-<!--        <finalName>replicated-log</finalName>-->
-<!--        <plugins>-->
-<!--            <plugin>-->
-<!--                <groupId>org.springframework.boot</groupId>-->
-<!--                <artifactId>spring-boot-maven-plugin</artifactId>-->
-<!--                <version>${spring.boot.version}</version>-->
-<!--                <configuration>-->
-<!--                    &lt;!&ndash;          <excludes>&ndash;&gt;-->
-<!--                    &lt;!&ndash;            <exclude>&ndash;&gt;-->
-<!--                    &lt;!&ndash;              <groupId>org.projectlombok</groupId>&ndash;&gt;-->
-<!--                    &lt;!&ndash;              <artifactId>lombok</artifactId>&ndash;&gt;-->
-<!--                    &lt;!&ndash;            </exclude>&ndash;&gt;-->
-<!--                    &lt;!&ndash;          </excludes>&ndash;&gt;-->
-<!--                </configuration>-->
-<!--            </plugin>-->
-<!--            <plugin>-->
-<!--                <groupId>org.apache.maven.plugins</groupId>-->
-<!--                <artifactId>maven-compiler-plugin</artifactId>-->
-<!--                <version>3.8.0</version>-->
-<!--                <configuration>-->
-<!--                    <source>${java.version}</source>-->
-<!--                    <target>${java.version}</target>-->
-<!--                </configuration>-->
-<!--            </plugin>-->
-<!--        </plugins>-->
-<!--    </build>-->
 
 </project>

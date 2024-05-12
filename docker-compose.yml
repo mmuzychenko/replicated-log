@@ -17,6 +17,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
+    environment:
+      - ALL_SECONDARY_URL=http://replicated-log-secondary-1:8081/secondary;http://replicated-log-secondary-2:8082/secondary;
     restart: always
 
 

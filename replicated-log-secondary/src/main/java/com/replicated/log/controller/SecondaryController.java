@@ -26,7 +26,7 @@ public class SecondaryController {
     private String baseUrl;
 
     @Value("${service.name}")
-    private String name;
+    private String serviceName;
 
     @Autowired
     private MessageService messageService;
@@ -37,28 +37,28 @@ public class SecondaryController {
 
     @GetMapping("/messages")
     public ResponseEntity<Set<Message>> findAllMessages() {
-        LOGGER.info("{}: Get all messages call.", name);
+        LOGGER.info("{} controller: Get all messages call.", serviceName);
         return ResponseEntity.ok(messageService.getAllMessages());
     }
 
     @PostMapping( "/messages")
     public ResponseEntity<Message> addMessage(@RequestBody Message message) {
-        LOGGER.info("{}: Received message: {}", name, message.getText());
+        LOGGER.info("{} controller: Received message: {}", serviceName, message.getText());
 
-        LOGGER.info("{}: Send acknowledge to master.", name);
+        LOGGER.info("{} controller: Send acknowledge to master.", serviceName);
         masterServiceClient.sendAcknowledge(new Acknowledge(message.getId(), AcknowledgeStatus.SUCCESS, baseUrl));
 
         ReplicatedLogUtils.pauseSecondaryServer(10);
 
         messageService.appendMessage(message);
-        LOGGER.info("{}: Added message: {} ", name, message);
+        LOGGER.info("{} controller: Added message: {} ", serviceName, message);
 
         return ResponseEntity.ok(message);
     }
 
     @GetMapping("/health")
     public ResponseEntity<HttpStatus> healthCheck() {
-        LOGGER.info("{}: health check url", name);
+        LOGGER.info("{} controller: health check.", serviceName);
         return ResponseEntity.ok(HttpStatus.OK);
     }
 }

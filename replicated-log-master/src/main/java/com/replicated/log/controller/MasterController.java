@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.text.MessageFormat;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/master")
@@ -37,7 +36,7 @@ public class MasterController {
     @GetMapping("/messages")
     public ResponseEntity<List<String>> getMessages() {
         LOGGER.info("Master: Start get all messages.");
-        List<String> messages = messageService.getAllMessages().stream().sorted().map(Message::getText).collect(Collectors.toList());
+        List<String> messages = messageService.getAllMessages().stream().sorted().map(Message::getText).toList();
         LOGGER.info("Master: Finish get all messages.");
         return ResponseEntity.ok(messages);
     }
@@ -58,9 +57,9 @@ public class MasterController {
 
         messageService.appendMessage(message);
 
-        while (acknowledgeService.getAknowledges(message.getId()).size() < writeConcern) {
-            LOGGER.info("Master: Waiting {} acknowledges.", writeConcern - acknowledgeService.getAknowledges(message.getId()).size());
-            messageService.retryIfPosibleAppendMessage(message, acknowledgeService.getAknowledges(message.getId()));
+        while (acknowledgeService.getAcknowledges(message.getId()).size() < writeConcern) {
+            LOGGER.info("Master: Waiting {} acknowledges.", writeConcern - acknowledgeService.getAcknowledges(message.getId()).size());
+            messageService.retryAppendMessageIfPossible(message, acknowledgeService.getAcknowledges(message.getId()));
             try {
                 Thread.sleep(5000);
             } catch (InterruptedException e) {

@@ -6,6 +6,7 @@ import com.replicated.log.service.MessageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
@@ -15,19 +16,22 @@ public class MessageServiceImpl implements MessageService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MessageServiceImpl.class);
 
+    @Value("${service.name}")
+    private String serviceName;
+
     @Autowired
     private MessageRepository repository;
 
 
     @Override
     public Set<Message> getAllMessages() {
-        LOGGER.info("Secondary msg service: Get all messages.");
+        LOGGER.info("{} msg service: Get all messages.", serviceName);
         return repository.getAllMessages();
     }
 
     @Override
     public boolean appendMessage(Message message) {
-        LOGGER.info("Secondary msg service: Add message.");
+        LOGGER.info("{} msg service: Add message.", serviceName);
         return repository.addMessage(message);
     }
 }

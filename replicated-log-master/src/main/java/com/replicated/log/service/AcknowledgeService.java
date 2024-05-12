@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface AcknowledgeService {
 
-    List<Acknowledge> getAknowledges(Integer messageId);
+    List<Acknowledge> getAcknowledges(Integer messageId);
 
     void addAcknowledge(Integer messageId, Acknowledge acknowledge);
 

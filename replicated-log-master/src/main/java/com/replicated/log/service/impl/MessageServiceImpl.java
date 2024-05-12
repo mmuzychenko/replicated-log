@@ -20,8 +20,8 @@ public class MessageServiceImpl implements MessageService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MessageServiceImpl.class);
 
-    @Value("${all.secondary.baseurl}")
-    private String allSecondaryBaseUrl;
+    @Value("${all.secondary.url}")
+    private String allSecondaryBaseUrl = System.getenv("ALL_SECONDARY_URL");
 
     @Autowired
     private SecondaryServiceClient secondaryServiceClient;
@@ -54,9 +54,9 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public void retryIfPosibleAppendMessage(Message message, List<Acknowledge> acknowladges) {
+    public void retryAppendMessageIfPossible(Message message, List<Acknowledge> acknowledges) {
         LOGGER.info("Message service: Retry add message.");
-        List<String> ackUrls = acknowladges.stream().map(Acknowledge::getServiceUrl).toList();
+        List<String> ackUrls = acknowledges.stream().map(Acknowledge::getServiceUrl).toList();
         List<String> receivedAckSecondariesUrl = new ArrayList<>(allSecondaries);
         receivedAckSecondariesUrl.removeAll(ackUrls);
 
