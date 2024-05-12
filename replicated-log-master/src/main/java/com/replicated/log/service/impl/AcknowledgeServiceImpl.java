@@ -21,8 +21,6 @@ public class AcknowledgeServiceImpl implements AcknowledgeService {
         if (acknowledgeRepository.containsKey(messageId)) {
             acknowledgeRepository.get(messageId).add(acknowledge);
         } else {
-//            List<Acknowledge> initialAcknowledgeList = new ArrayList<>();
-//            initialAcknowledgeList.add(acknowledge);
             Set<Acknowledge> initialAcknowledgeSet = new HashSet<>();
             initialAcknowledgeSet.add(acknowledge);
             acknowledgeRepository.put(messageId, initialAcknowledgeSet);

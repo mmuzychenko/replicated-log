@@ -11,6 +11,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Collections;
 import java.util.List;
 
 @Component
@@ -21,17 +22,24 @@ public class SecondaryServiceClient {
     private final WebClient webClient = WebClient.create();
 
 
-    public List<Message> getAllMessages(String baseUrl) {
-        return
-                webClient
-                        .get()
-                        .uri(baseUrl + "/messages")
-                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                        .retrieve()
-                        .bodyToFlux(Message.class)
-                        .collectList()
-                        .onErrorContinue((x, y) -> LOGGER.info("Secondary service client: Connection error: {}", x.getMessage()))
-                        .block();
+    public List getAllMessages(String baseUrl) {
+        try {
+            return
+                    webClient
+                            .get()
+                            .uri(baseUrl + "/messages")
+                            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                            .retrieve()
+                            .bodyToFlux(Message.class)
+                            .collectList()
+                            .onErrorContinue((x, y) -> LOGGER.info("Secondary service client: Connection error: {}", x.getMessage()))
+                            .onErrorMap(Throwable.class, throwable -> new Exception("Secondary is available."))
+                            .block();
+        } catch (Exception e) {
+            LOGGER.warn("Secondary url: {} not available", baseUrl);
+            return Collections.emptyList();
+        }
+
     }
 
     public void appendMessageAsync(Message message, String baseUrl) {
