@@ -36,17 +36,19 @@ public class SecondaryController {
 
 
     @GetMapping("/messages")
-    public ResponseEntity<Set<Message>> findAllMessages() {
+    public ResponseEntity<Set<MessageDTO>> findAllMessages() {
         LOGGER.info("{} controller: Get all messages call.", serviceName);
-        return ResponseEntity.ok(messageService.getAllMessages());
+        Set<MessageDTO> allMessages = messageService.getAllMessages();
+        LOGGER.info("Messages: {}", allMessages.stream().map(MessageDTO::getText).toList());
+        return ResponseEntity.ok(allMessages);
     }
 
     @PostMapping( "/messages")
-    public ResponseEntity<Message> addMessage(@RequestBody Message message) {
+    public ResponseEntity<MessageDTO> addMessage(@RequestBody MessageDTO message) {
         LOGGER.info("{} controller: Received message: {}", serviceName, message.getText());
 
         LOGGER.info("{} controller: Send acknowledge to master.", serviceName);
-        masterServiceClient.sendAcknowledge(new Acknowledge(message.getId(), AcknowledgeStatus.SUCCESS, baseUrl));
+        masterServiceClient.sendAcknowledge(new AcknowledgeDTO(message.getId(), AcknowledgeStatus.SUCCESS, baseUrl));
 
         ReplicatedLogUtils.pauseSecondaryServer(10);
 

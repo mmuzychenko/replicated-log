@@ -1,6 +1,6 @@
 package com.replicated.log.service.impl;
 
-import com.replicated.log.dto.Message;
+import com.replicated.log.dto.MessageDTO;
 import com.replicated.log.repository.MessageRepository;
 import com.replicated.log.service.MessageService;
 import org.slf4j.Logger;
@@ -24,13 +24,13 @@ public class MessageServiceImpl implements MessageService {
 
 
     @Override
-    public Set<Message> getAllMessages() {
+    public Set<MessageDTO> getAllMessages() {
         LOGGER.info("{} msg service: Get all messages.", serviceName);
         return repository.getAllMessages();
     }
 
     @Override
-    public boolean appendMessage(Message message) {
+    public boolean appendMessage(MessageDTO message) {
         LOGGER.info("{} msg service: Add message.", serviceName);
         return repository.addMessage(message);
     }

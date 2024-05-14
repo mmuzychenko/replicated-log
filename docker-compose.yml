@@ -1,4 +1,3 @@
-version: '3.3'
 
 networks:
   replicated-network:
@@ -14,7 +13,7 @@ services:
     container_name: replicated-log-master-container
     build:
       context: replicated-log-master
-      dockerfile: replicated-log-master/Dockerfile
+      dockerfile: Dockerfile
     ports:
       - "8080:8080"
     environment:
@@ -30,7 +29,7 @@ services:
     container_name: replicated-log-secondary-1-container
     build:
       context: replicated-log-secondary
-      dockerfile: replicated-log-secondary/DockerfileSecondary1
+      dockerfile: DockerfileSecondary1
     ports:
       - "8081:8081"
     restart: always
@@ -44,7 +43,7 @@ services:
     container_name: replicated-log-secondary-2-container
     build:
       context: replicated-log-secondary
-      dockerfile: replicated-log-secondary/DockerfileSecondary2
+      dockerfile: DockerfileSecondary2
     ports:
       - "8082:8081"
     restart: always

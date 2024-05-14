@@ -1,14 +1,16 @@
 package com.replicated.log.dto;
 
-import java.util.Objects;
-
-public class Acknowledge {
+public class AcknowledgeDTO {
 
     private Integer messageId;
     private AcknowledgeStatus status;
     private String serviceUrl;
 
-    public Acknowledge() {
+
+    public AcknowledgeDTO(Integer messageId, AcknowledgeStatus status, String serviceUrl) {
+        this.messageId = messageId;
+        this.status = status;
+        this.serviceUrl = serviceUrl;
     }
 
     public Integer getMessageId() {
@@ -35,15 +37,4 @@ public class Acknowledge {
         this.serviceUrl = serviceUrl;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Acknowledge that)) return false;
-        return Objects.equals(messageId, that.messageId) && status == that.status && Objects.equals(serviceUrl, that.serviceUrl);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(messageId, status, serviceUrl);
-    }
 }

@@ -2,15 +2,15 @@ package com.replicated.log.dto;
 
 import java.util.Objects;
 
-public class Message implements Comparable<Message>{
+public class MessageDTO implements Comparable<MessageDTO>{
 
     private Integer id;
     private String text;
 
-    public Message() {
+    public MessageDTO() {
     }
 
-    public Message(Integer id, String text) {
+    public MessageDTO(Integer id, String text) {
         this.id = id;
         this.text = text;
     }
@@ -34,7 +34,7 @@ public class Message implements Comparable<Message>{
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Message message)) return false;
+        if (!(o instanceof MessageDTO message)) return false;
         return Objects.equals(id, message.id) && Objects.equals(text, message.text);
     }
 
@@ -44,7 +44,7 @@ public class Message implements Comparable<Message>{
     }
 
     @Override
-    public int compareTo(Message o) {
+    public int compareTo(MessageDTO o) {
         return this.getId() - o.getId();
     }
 

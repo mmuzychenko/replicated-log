@@ -1,6 +1,6 @@
 package com.replicated.log.service;
 
-import com.replicated.log.dto.Acknowledge;
+import com.replicated.log.dto.AcknowledgeDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,14 +20,14 @@ public class MasterServiceClient {
 
     private final WebClient webClient = WebClient.create();
 
-    public void sendAcknowledge(Acknowledge acknowledge) {
+    public void sendAcknowledge(AcknowledgeDTO acknowledge) {
         webClient
                 .post()
                 .uri(masterBaseUrl + "/acknowledges")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .bodyValue(acknowledge)
                 .retrieve()
-                .bodyToMono(Acknowledge.class)
+                .bodyToMono(AcknowledgeDTO.class)
                 .onErrorContinue((x, y) -> LOGGER.info("Master service client: Connection error: {}", x.getMessage()))
                 .subscribe();
     }

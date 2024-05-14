@@ -1,12 +1,12 @@
 package com.replicated.log.service;
 
-import com.replicated.log.dto.Message;
+import com.replicated.log.dto.MessageDTO;
 import java.util.Set;
 
 public interface MessageService {
 
-    Set<Message> getAllMessages();
+    Set<MessageDTO> getAllMessages();
 
-    boolean appendMessage(Message message);
+    boolean appendMessage(MessageDTO message);
 
 }

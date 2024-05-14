@@ -36,7 +36,7 @@ public class MasterController {
     @GetMapping("/messages")
     public ResponseEntity<List<String>> getMessages() {
         LOGGER.info("Master: Start get all messages.");
-        List<String> messages = messageService.getAllMessages().stream().sorted().map(Message::getText).toList();
+        List<String> messages = messageService.getAllMessages().stream().sorted().map(MessageDTO::getText).toList();
         LOGGER.info("Master: Finish get all messages.");
         return ResponseEntity.ok(messages);
     }
@@ -52,14 +52,12 @@ public class MasterController {
         LOGGER.info("Master: Start appending message, writeConcern = {}.", writeConcern);
 
         messageCounter++;
-        Message message = new Message(messageCounter, text);
-        message.setId(messageCounter);
-
+        MessageDTO message = new MessageDTO(messageCounter, text);
         messageService.appendMessage(message);
 
         while (acknowledgeService.getAcknowledges(message.getId()).size() < writeConcern) {
             LOGGER.info("Master: Waiting {} acknowledges.", writeConcern - acknowledgeService.getAcknowledges(message.getId()).size());
-            messageService.retryAppendMessageIfPossible(message, acknowledgeService.getAcknowledges(message.getId()));
+            messageService.reAppendMessageIfPossible();
             try {
                 Thread.sleep(5000);
             } catch (InterruptedException e) {
@@ -72,10 +70,11 @@ public class MasterController {
     }
 
     @PostMapping("/acknowledges")
-    public ResponseEntity<Acknowledge> receiveAcknowledge(@RequestBody Acknowledge acknowledge) {
+    public ResponseEntity<AcknowledgeDTO> receiveAcknowledge(@RequestBody AcknowledgeDTO acknowledge) {
         LOGGER.info("Master: Receive acknowledge with message Id: {}", acknowledge.getMessageId());
         if (AcknowledgeStatus.SUCCESS.equals(acknowledge.getStatus())) {
             acknowledgeService.addAcknowledge(acknowledge.getMessageId(), acknowledge);
+            messageService.cleanupPendingMessages(acknowledge);
         }
         return ResponseEntity.ok(acknowledge);
     }

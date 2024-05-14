@@ -1,8 +1,8 @@
 package com.replicated.log.service.impl;
 
-import com.replicated.log.dto.Acknowledge;
+import com.replicated.log.dto.AcknowledgeDTO;
 import com.replicated.log.dto.HealthCondition;
-import com.replicated.log.dto.Message;
+import com.replicated.log.dto.MessageDTO;
 import com.replicated.log.service.MessageService;
 import com.replicated.log.service.ReplicatedUtilsService;
 import com.replicated.log.service.SecondaryServiceClient;
@@ -31,41 +31,47 @@ public class MessageServiceImpl implements MessageService {
 
     private List<String> allSecondaries;
 
+    private Map<String, Set<MessageDTO>> pendingMessages = new HashMap<>();
+
 
 
     @PostConstruct
     private void postConstruct() {
         allSecondaries = Arrays.asList(allSecondaryBaseUrl.split(";"));
+        allSecondaries.forEach(url -> pendingMessages.put(url, new HashSet<>()));
     }
 
     @Override
-    public Set<Message> getAllMessages() {
+    public Set<MessageDTO> getAllMessages() {
         LOGGER.info("Message service: Get all messages.");
-        Set<Message> result = new HashSet<>();
+        reAppendMessageIfPossible();
+        Set<MessageDTO> result = new HashSet<>();
         allSecondaries.forEach(baseUrl ->
                 result.addAll(new HashSet<>(secondaryServiceClient.getAllMessages(baseUrl))));
         return new HashSet<>(result);
     }
 
     @Override
-    public void appendMessage(Message message) {
+    public void appendMessage(MessageDTO message) {
         LOGGER.info("Message service: Add message.");
-        allSecondaries.forEach(baseUrl -> secondaryServiceClient.appendMessageAsync(message, baseUrl));
+        allSecondaries.forEach(url -> pendingMessages.get(url).add(message));
+        pendingMessages.forEach((url, msgs) -> msgs.forEach(msg -> secondaryServiceClient.appendMessageAsync(msg, url)));
     }
 
     @Override
-    public void retryAppendMessageIfPossible(Message message, Set<Acknowledge> acknowledges) {
-        LOGGER.info("Message service: Retry add message.");
-        List<String> ackUrls = acknowledges.stream().map(Acknowledge::getServiceUrl).toList();
-        List<String> receivedAckSecondariesUrl = new ArrayList<>(allSecondaries);
-        receivedAckSecondariesUrl.removeAll(ackUrls);
+    public void cleanupPendingMessages(AcknowledgeDTO acknowledge) {
+        pendingMessages.get(acknowledge.getServiceUrl()).removeIf(message -> message.getId().equals(acknowledge.getMessageId()));
+    }
 
-        receivedAckSecondariesUrl.forEach(baseUrl -> {
-            HealthCondition secondaryHealthCondition = replicatedUtilsService.getSecondaryHealthCondition(baseUrl);
+    @Override
+    public void reAppendMessageIfPossible() {
+        pendingMessages.forEach((url, msgs) -> {
+            HealthCondition secondaryHealthCondition = replicatedUtilsService.getSecondaryHealthCondition(url);
             if (secondaryHealthCondition == HealthCondition.HEALTHY) {
-                secondaryServiceClient.appendMessageAsync(message, baseUrl);
-            } else {
-                LOGGER.warn("Secondary service: {} is still unavailable with status: {}", baseUrl, secondaryHealthCondition);
+                msgs.forEach(msg -> {
+                    LOGGER.info("Master: Retry sending message: {}.", msg);
+                    secondaryServiceClient.appendMessageAsync(msg, url);
+                });
             }
         });
     }

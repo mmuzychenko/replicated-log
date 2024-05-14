@@ -1,7 +1,7 @@
 package com.replicated.log.service;
 
 import com.replicated.log.dto.HealthCondition;
-import com.replicated.log.dto.Message;
+import com.replicated.log.dto.MessageDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -30,7 +30,7 @@ public class SecondaryServiceClient {
                             .uri(baseUrl + "/messages")
                             .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                             .retrieve()
-                            .bodyToFlux(Message.class)
+                            .bodyToFlux(MessageDTO.class)
                             .collectList()
                             .onErrorContinue((x, y) -> LOGGER.info("Secondary service client: Connection error: {}", x.getMessage()))
                             .onErrorMap(Throwable.class, throwable -> new Exception("Secondary is available."))
@@ -42,14 +42,14 @@ public class SecondaryServiceClient {
 
     }
 
-    public void appendMessageAsync(Message message, String baseUrl) {
+    public void appendMessageAsync(MessageDTO message, String baseUrl) {
         webClient
                 .post()
                 .uri(baseUrl + "/messages")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .bodyValue(message)
                 .retrieve()
-                .bodyToMono(Message.class)
+                .bodyToMono(MessageDTO.class)
                 .onErrorContinue((x, y) -> LOGGER.info("Secondary service client: Connection error: {}", x.getMessage()))
                 .subscribe();
     }

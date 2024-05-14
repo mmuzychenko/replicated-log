@@ -1,14 +1,14 @@
 package com.replicated.log.service;
 
-import com.replicated.log.dto.Acknowledge;
+import com.replicated.log.dto.AcknowledgeDTO;
 
 import java.util.Set;
 
 
 public interface AcknowledgeService {
 
-    Set<Acknowledge> getAcknowledges(Integer messageId);
+    Set<AcknowledgeDTO> getAcknowledges(Integer messageId);
 
-    void addAcknowledge(Integer messageId, Acknowledge acknowledge);
+    void addAcknowledge(Integer messageId, AcknowledgeDTO acknowledge);
 
 }

@@ -1,9 +1,6 @@
 package com.replicated.log.repository;
 
-import com.replicated.log.dto.Message;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
+import com.replicated.log.dto.MessageDTO;
 import org.springframework.stereotype.Repository;
 
 import java.util.HashSet;
@@ -12,24 +9,14 @@ import java.util.Set;
 @Repository
 public class MessageRepository {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MessageRepository.class);
+    private Set<MessageDTO> messages = new HashSet<>();
 
-    @Value("${service.name}")
-    private String serviceName;
-
-    private Set<Message> messages = new HashSet<>();
-
-    public Set<Message> getAllMessages() {
-        LOGGER.info("{} repository: Get all messages.", serviceName);
+    public Set<MessageDTO> getAllMessages() {
         return messages;
     }
 
-    public boolean addMessage(Message message) {
-        boolean result = messages.add(message);
-        if (messages.add(message)) {
-            LOGGER.info("{} repository: Added message: {}", serviceName, message);
-        }
-        return result;
+    public boolean addMessage(MessageDTO message) {
+        return messages.add(message);
     }
 
 }
