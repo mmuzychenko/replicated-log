@@ -38,9 +38,9 @@ public class SecondaryController {
 
 
     @GetMapping("/messages")
-    public ResponseEntity<Set<MessageDTO>> findAllMessages() {
+    public ResponseEntity<List<MessageDTO>> findAllMessages() {
         LOGGER.info("{} controller: Get all messages call.", serviceName);
-        Set<MessageDTO> allMessages = messageService.getAllMessages();
+        List<MessageDTO> allMessages = messageService.getAllMessages();
         LOGGER.info("Messages: {}", new HashSet<>(allMessages).stream().map(MessageDTO::getText).toList());
         return ResponseEntity.ok(allMessages);
     }
@@ -51,11 +51,15 @@ public class SecondaryController {
             LOGGER.info("{} controller: Processing message: {}", serviceName, message.getText());
             return ResponseEntity.ok(message);
         }
-        LOGGER.info("{} controller: Received message: {}", serviceName, message.getText());
-        pendingMsgs.add(message);
 
-        LOGGER.info("{} controller: Send acknowledge to master.", serviceName);
-        masterServiceClient.sendAcknowledge(new AcknowledgeDTO(serviceName, message.getId(), AcknowledgeStatus.SUCCESS, baseUrl));
+        if (messageService.isPendingMessageAllowed(message)) {
+            LOGGER.info("{} controller: Received message: {}", serviceName, message.getText());
+            LOGGER.info("{} controller: Send acknowledge to master.", serviceName);
+            pendingMsgs.add(message);
+            masterServiceClient.sendAcknowledge(new AcknowledgeDTO(serviceName, message.getId(), AcknowledgeStatus.SUCCESS, baseUrl));
+        } else {
+            return ResponseEntity.ok(message);
+        }
 
         ReplicatedLogUtils.pauseSecondaryServer(10);
 

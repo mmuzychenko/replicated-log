@@ -3,15 +3,14 @@ package com.replicated.log.repository;
 import com.replicated.log.dto.MessageDTO;
 import org.springframework.stereotype.Repository;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Repository
 public class MessageRepository {
 
-    private Set<MessageDTO> messages = new HashSet<>();
+    private LinkedList<MessageDTO> messages = new LinkedList<>();
 
-    public Set<MessageDTO> getAllMessages() {
+    public LinkedList<MessageDTO> getAllMessages() {
         return messages;
     }
 

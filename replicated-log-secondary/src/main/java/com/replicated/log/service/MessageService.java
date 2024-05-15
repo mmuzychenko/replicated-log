@@ -1,12 +1,15 @@
 package com.replicated.log.service;
 
 import com.replicated.log.dto.MessageDTO;
-import java.util.Set;
+
+import java.util.List;
 
 public interface MessageService {
 
-    Set<MessageDTO> getAllMessages();
+    List<MessageDTO> getAllMessages();
 
     boolean appendMessage(MessageDTO message);
+
+    boolean isPendingMessageAllowed(MessageDTO message);
 
 }

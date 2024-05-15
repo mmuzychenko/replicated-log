@@ -45,7 +45,13 @@ public class MessageServiceImpl implements MessageService {
     @Override
     public Set<MessageDTO> getAllMessages() {
         LOGGER.info("Message service: Get all messages.");
-        reAppendMessageIfPossible();
+
+        pendingMessages.forEach((url, msgs) -> {
+            while (!msgs.isEmpty()) {
+                reAppendMessageIfPossible();
+            }
+        });
+
         Set<MessageDTO> result = new HashSet<>();
         allSecondaries.forEach(baseUrl ->
                 result.addAll(new HashSet<>(secondaryServiceClient.getAllMessages(baseUrl))));
@@ -71,7 +77,7 @@ public class MessageServiceImpl implements MessageService {
                 HealthCondition secondaryHealthCondition = replicatedUtilsService.getSecondaryHealthCondition(url);
                 if (secondaryHealthCondition == HealthCondition.HEALTHY) {
                     msgs.stream().sorted().forEach(msg -> {
-                        LOGGER.info("Master: Retry sending message: {}.", msg);
+                        LOGGER.info("Master: Retry sending message: {}.", msg.getText());
                         secondaryServiceClient.appendMessageAsync(msg, url);
                     });
                 }
