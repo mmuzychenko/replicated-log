@@ -46,17 +46,17 @@ public class MasterController {
 
         // Count the number of healthy secondaries
         if (!replicatedUtilsService.isQuorumEnough()) {
-            return ResponseEntity.ok("Sorry, appending new messages temporary unavailable.");
+            return ResponseEntity.ok("Sorry, appending messages temporary unavailable. Quorum is not enough. ");
         }
 
-        LOGGER.info("Master: Start appending message, writeConcern = {}.", writeConcern);
+        LOGGER.info("Master: Start appending message: {}, writeConcern = {}.", text, writeConcern);
 
         messageCounter++;
         MessageDTO message = new MessageDTO(messageCounter, text);
         messageService.appendMessage(message);
 
-        while (acknowledgeService.getAcknowledges(message.getId()).size() < writeConcern) {
-            LOGGER.info("Master: Waiting {} acknowledges.", writeConcern - acknowledgeService.getAcknowledges(message.getId()).size());
+        while (acknowledgeService.getAcknowledges(message.getId()).size() < writeConcern - 1) {
+            LOGGER.info("Master: Waiting {} acknowledges.", (writeConcern - 1) - acknowledgeService.getAcknowledges(message.getId()).size());
             messageService.reAppendMessageIfPossible();
             try {
                 Thread.sleep(5000);
@@ -65,13 +65,13 @@ public class MasterController {
             }
         }
 
-        LOGGER.info("Master: Finish appending message, writeConcern = {}.", writeConcern);
+        LOGGER.info("Master: Finish appending message: {}, writeConcern = {}.", text, writeConcern);
         return ResponseEntity.ok(MessageFormat.format("Message appended: {0}", message.getText()));
     }
 
     @PostMapping("/acknowledges")
     public ResponseEntity<AcknowledgeDTO> receiveAcknowledge(@RequestBody AcknowledgeDTO acknowledge) {
-        LOGGER.info("Master: Receive acknowledge with message Id: {}", acknowledge.getMessageId());
+        LOGGER.info("Master: Receive acknowledge from: {} with message Id: {}", acknowledge.getServiceName(), acknowledge.getMessageId());
         if (AcknowledgeStatus.SUCCESS.equals(acknowledge.getStatus())) {
             acknowledgeService.addAcknowledge(acknowledge.getMessageId(), acknowledge);
             messageService.cleanupPendingMessages(acknowledge);

@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class MessageServiceImpl implements MessageService {
@@ -31,7 +32,7 @@ public class MessageServiceImpl implements MessageService {
 
     private List<String> allSecondaries;
 
-    private Map<String, Set<MessageDTO>> pendingMessages = new HashMap<>();
+    private Map<String, Set<MessageDTO>> pendingMessages = new ConcurrentHashMap<>();
 
 
 
@@ -55,7 +56,7 @@ public class MessageServiceImpl implements MessageService {
     public void appendMessage(MessageDTO message) {
         LOGGER.info("Message service: Add message.");
         allSecondaries.forEach(url -> pendingMessages.get(url).add(message));
-        pendingMessages.forEach((url, msgs) -> msgs.forEach(msg -> secondaryServiceClient.appendMessageAsync(msg, url)));
+        pendingMessages.forEach((url, msgs) -> msgs.stream().sorted().forEach(msg -> secondaryServiceClient.appendMessageAsync(msg, url)));
     }
 
     @Override
@@ -66,12 +67,14 @@ public class MessageServiceImpl implements MessageService {
     @Override
     public void reAppendMessageIfPossible() {
         pendingMessages.forEach((url, msgs) -> {
-            HealthCondition secondaryHealthCondition = replicatedUtilsService.getSecondaryHealthCondition(url);
-            if (secondaryHealthCondition == HealthCondition.HEALTHY) {
-                msgs.forEach(msg -> {
-                    LOGGER.info("Master: Retry sending message: {}.", msg);
-                    secondaryServiceClient.appendMessageAsync(msg, url);
-                });
+            if (!msgs.isEmpty()) {
+                HealthCondition secondaryHealthCondition = replicatedUtilsService.getSecondaryHealthCondition(url);
+                if (secondaryHealthCondition == HealthCondition.HEALTHY) {
+                    msgs.stream().sorted().forEach(msg -> {
+                        LOGGER.info("Master: Retry sending message: {}.", msg);
+                        secondaryServiceClient.appendMessageAsync(msg, url);
+                    });
+                }
             }
         });
     }

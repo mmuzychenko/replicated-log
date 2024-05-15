@@ -8,9 +8,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.List;
 
@@ -51,6 +53,14 @@ public class SecondaryServiceClient {
                 .retrieve()
                 .bodyToMono(MessageDTO.class)
                 .onErrorContinue((x, y) -> LOGGER.info("Secondary service client: Connection error: {}", x.getMessage()))
+                .onErrorResume(e -> {
+                    if (e instanceof UnknownHostException) {
+                        LOGGER.warn("Unknown host: {}", baseUrl);
+                    } else {
+                        LOGGER.error("Secondary url: {} not available", baseUrl);
+                    }
+                    return Mono.just(new MessageDTO());
+                })
                 .subscribe();
     }
 

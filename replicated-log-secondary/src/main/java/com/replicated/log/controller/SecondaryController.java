@@ -13,7 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Set;
+import java.util.*;
 
 @Controller
 @RequestMapping("/secondary")
@@ -34,26 +34,33 @@ public class SecondaryController {
     @Autowired
     private MasterServiceClient masterServiceClient;
 
+    private Set<MessageDTO> pendingMsgs = new HashSet<>();
+
 
     @GetMapping("/messages")
     public ResponseEntity<Set<MessageDTO>> findAllMessages() {
         LOGGER.info("{} controller: Get all messages call.", serviceName);
         Set<MessageDTO> allMessages = messageService.getAllMessages();
-        LOGGER.info("Messages: {}", allMessages.stream().map(MessageDTO::getText).toList());
+        LOGGER.info("Messages: {}", new HashSet<>(allMessages).stream().map(MessageDTO::getText).toList());
         return ResponseEntity.ok(allMessages);
     }
 
     @PostMapping( "/messages")
     public ResponseEntity<MessageDTO> addMessage(@RequestBody MessageDTO message) {
+        if (pendingMsgs.contains(message)) {
+            LOGGER.info("{} controller: Processing message: {}", serviceName, message.getText());
+            return ResponseEntity.ok(message);
+        }
         LOGGER.info("{} controller: Received message: {}", serviceName, message.getText());
+        pendingMsgs.add(message);
 
         LOGGER.info("{} controller: Send acknowledge to master.", serviceName);
-        masterServiceClient.sendAcknowledge(new AcknowledgeDTO(message.getId(), AcknowledgeStatus.SUCCESS, baseUrl));
+        masterServiceClient.sendAcknowledge(new AcknowledgeDTO(serviceName, message.getId(), AcknowledgeStatus.SUCCESS, baseUrl));
 
         ReplicatedLogUtils.pauseSecondaryServer(10);
 
         messageService.appendMessage(message);
-        LOGGER.info("{} controller: Added message: {} ", serviceName, message);
+        LOGGER.info("{} controller: Message appended: {} ", serviceName, message.getText());
 
         return ResponseEntity.ok(message);
     }

@@ -4,11 +4,18 @@ import java.util.Objects;
 
 public class AcknowledgeDTO {
 
+    private String serviceName;
     private Integer messageId;
     private AcknowledgeStatus status;
     private String serviceUrl;
 
-    public AcknowledgeDTO() {
+
+    public String getServiceName() {
+        return serviceName;
+    }
+
+    public void setServiceName(String serviceName) {
+        this.serviceName = serviceName;
     }
 
     public Integer getMessageId() {

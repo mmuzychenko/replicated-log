@@ -25,13 +25,11 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     public Set<MessageDTO> getAllMessages() {
-        LOGGER.info("{} msg service: Get all messages.", serviceName);
         return repository.getAllMessages();
     }
 
     @Override
     public boolean appendMessage(MessageDTO message) {
-        LOGGER.info("{} msg service: Add message.", serviceName);
         return repository.addMessage(message);
     }
 }
