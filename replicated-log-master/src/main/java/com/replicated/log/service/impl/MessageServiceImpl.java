@@ -45,13 +45,6 @@ public class MessageServiceImpl implements MessageService {
     @Override
     public Set<MessageDTO> getAllMessages() {
         LOGGER.info("Message service: Get all messages.");
-
-        pendingMessages.forEach((url, msgs) -> {
-            while (!msgs.isEmpty()) {
-                reAppendMessageIfPossible();
-            }
-        });
-
         Set<MessageDTO> result = new HashSet<>();
         allSecondaries.forEach(baseUrl ->
                 result.addAll(new HashSet<>(secondaryServiceClient.getAllMessages(baseUrl))));
@@ -68,6 +61,16 @@ public class MessageServiceImpl implements MessageService {
     @Override
     public void cleanupPendingMessages(AcknowledgeDTO acknowledge) {
         pendingMessages.get(acknowledge.getServiceUrl()).removeIf(message -> message.getId().equals(acknowledge.getMessageId()));
+        pendingMessages.forEach((url, msgs) -> {
+            while (!msgs.isEmpty()) {
+                try {
+                    reAppendMessageIfPossible();
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     @Override

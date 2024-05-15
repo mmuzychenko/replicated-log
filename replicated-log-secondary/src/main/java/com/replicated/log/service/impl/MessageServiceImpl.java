@@ -30,8 +30,11 @@ public class MessageServiceImpl implements MessageService {
         return repository.addMessage(message);
     }
 
+    /*
+    * This complex validation is for preventing storing misordered messages
+    * */
     public boolean isPendingMessageAllowed(MessageDTO message) {
         LinkedList<MessageDTO> allMessages = repository.getAllMessages();
-        return message.getId() == 1 || allMessages.getLast().getId() == message.getId() - 1;
+        return message.getId() == 1 || (!allMessages.isEmpty() && allMessages.getLast().getId() == message.getId() - 1);
     }
 }
